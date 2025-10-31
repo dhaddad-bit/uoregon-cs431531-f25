@@ -1,0 +1,22 @@
+#!/bin/bash
+#SBATCH --partition=compute          ### queue to submit to
+#SBATCH --job-name=parallel_pi_16
+#SBATCH --output=output/parallel_pi_16_%A.out
+#SBATCH --error=output/parallel_pi_16_%A.err
+#SBATCH --time=00:15:00              ### wall-clock time limit, in minutes
+#SBATCH --mem=16000M                 ### memory limit per node (K|M|G|T)
+#SBATCH --nodes=1                    ### number of nodes to use
+#SBATCH --ntasks-per-node=1          ### number of MPI tasks per node
+#SBATCH --cpus-per-task=16           ### number of CPUs for each task
+
+# Set OpenMP threads to match requested CPUs
+export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
+export OMP_PLACES="cores"
+export OMP_PROC_BIND='spread'
+
+# Run the program 20 times
+# We use a large step count for a measurable runtime
+for i in {1..20}
+do
+   ./pi 1000000000
+done
