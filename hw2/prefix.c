@@ -171,7 +171,7 @@ void prefix_sum_p2(int* src, int* prefix, int n)
     // Citation: Google Gemini says we must set the root to zero?
     binary_tree[n-1] = 0;
 
-    for (int i = (depth_outer_loop - 1), i >= 0; i--) {
+    for (int i = (depth_outer_loop - 1); i >= 0; i--) {
         int stride = 1 << i;
 
         #pragma omp parallel for
@@ -196,7 +196,7 @@ void prefix_sum_p2(int* src, int* prefix, int n)
     }
 
     // I guess I don't need the temp copy since we could treat prefix as the tree and then add src[i] in the final loop??
-    AllignedFree(binary_tree);
+    AlignedFree(binary_tree);
 
     
 }

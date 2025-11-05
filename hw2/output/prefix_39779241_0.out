@@ -1,0 +1,6 @@
+--- RUNNING WITH 1 THREADS ---
+Time to do O(N-1) prefix sum on a 33554432 elements: 0.0747658 (s)
+Time to do O(NlogN) //prefix sum on a 33554432 elements: 1.83432 (s)
+Pass
+Time to do 2(N-1) //prefix sum on a 33554432 elements: 0.336638 (s)
+Pass
