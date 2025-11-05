@@ -25,4 +25,8 @@ export OMP_DISPLAY_ENV='true' # prints settings to .err file
 
 echo "--- RUNNING WITH ${OMP_NUM_THREADS} THREADS ---"
 
-./prefix 33554432 5
+for i in {1..20}
+do
+  echo "--- RUN $i ---"
+  ./prefix 33554432 5
+done
