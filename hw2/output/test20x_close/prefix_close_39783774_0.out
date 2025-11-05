@@ -1,0 +1,121 @@
+--- RUNNING WITH 1 THREADS ---
+--- RUN 1 ---
+Time to do O(N-1) prefix sum on a 33554432 elements: 0.0742095 (s)
+Time to do O(NlogN) //prefix sum on a 33554432 elements: 1.75247 (s)
+Pass
+Time to do 2(N-1) //prefix sum on a 33554432 elements: 0.314574 (s)
+Pass
+--- RUN 2 ---
+Time to do O(N-1) prefix sum on a 33554432 elements: 0.0743661 (s)
+Time to do O(NlogN) //prefix sum on a 33554432 elements: 1.75066 (s)
+Pass
+Time to do 2(N-1) //prefix sum on a 33554432 elements: 0.314131 (s)
+Pass
+--- RUN 3 ---
+Time to do O(N-1) prefix sum on a 33554432 elements: 0.0743358 (s)
+Time to do O(NlogN) //prefix sum on a 33554432 elements: 1.75196 (s)
+Pass
+Time to do 2(N-1) //prefix sum on a 33554432 elements: 0.3149 (s)
+Pass
+--- RUN 4 ---
+Time to do O(N-1) prefix sum on a 33554432 elements: 0.0742939 (s)
+Time to do O(NlogN) //prefix sum on a 33554432 elements: 1.75189 (s)
+Pass
+Time to do 2(N-1) //prefix sum on a 33554432 elements: 0.314643 (s)
+Pass
+--- RUN 5 ---
+Time to do O(N-1) prefix sum on a 33554432 elements: 0.0743804 (s)
+Time to do O(NlogN) //prefix sum on a 33554432 elements: 1.75322 (s)
+Pass
+Time to do 2(N-1) //prefix sum on a 33554432 elements: 0.313818 (s)
+Pass
+--- RUN 6 ---
+Time to do O(N-1) prefix sum on a 33554432 elements: 0.0743499 (s)
+Time to do O(NlogN) //prefix sum on a 33554432 elements: 1.75002 (s)
+Pass
+Time to do 2(N-1) //prefix sum on a 33554432 elements: 0.314726 (s)
+Pass
+--- RUN 7 ---
+Time to do O(N-1) prefix sum on a 33554432 elements: 0.0747172 (s)
+Time to do O(NlogN) //prefix sum on a 33554432 elements: 1.75399 (s)
+Pass
+Time to do 2(N-1) //prefix sum on a 33554432 elements: 0.314622 (s)
+Pass
+--- RUN 8 ---
+Time to do O(N-1) prefix sum on a 33554432 elements: 0.0745754 (s)
+Time to do O(NlogN) //prefix sum on a 33554432 elements: 1.75213 (s)
+Pass
+Time to do 2(N-1) //prefix sum on a 33554432 elements: 0.314301 (s)
+Pass
+--- RUN 9 ---
+Time to do O(N-1) prefix sum on a 33554432 elements: 0.0746251 (s)
+Time to do O(NlogN) //prefix sum on a 33554432 elements: 1.74988 (s)
+Pass
+Time to do 2(N-1) //prefix sum on a 33554432 elements: 0.31419 (s)
+Pass
+--- RUN 10 ---
+Time to do O(N-1) prefix sum on a 33554432 elements: 0.0742814 (s)
+Time to do O(NlogN) //prefix sum on a 33554432 elements: 1.75075 (s)
+Pass
+Time to do 2(N-1) //prefix sum on a 33554432 elements: 0.314082 (s)
+Pass
+--- RUN 11 ---
+Time to do O(N-1) prefix sum on a 33554432 elements: 0.0741693 (s)
+Time to do O(NlogN) //prefix sum on a 33554432 elements: 1.75471 (s)
+Pass
+Time to do 2(N-1) //prefix sum on a 33554432 elements: 0.315599 (s)
+Pass
+--- RUN 12 ---
+Time to do O(N-1) prefix sum on a 33554432 elements: 0.074138 (s)
+Time to do O(NlogN) //prefix sum on a 33554432 elements: 1.75311 (s)
+Pass
+Time to do 2(N-1) //prefix sum on a 33554432 elements: 0.314222 (s)
+Pass
+--- RUN 13 ---
+Time to do O(N-1) prefix sum on a 33554432 elements: 0.0748434 (s)
+Time to do O(NlogN) //prefix sum on a 33554432 elements: 1.75232 (s)
+Pass
+Time to do 2(N-1) //prefix sum on a 33554432 elements: 0.315302 (s)
+Pass
+--- RUN 14 ---
+Time to do O(N-1) prefix sum on a 33554432 elements: 0.0745349 (s)
+Time to do O(NlogN) //prefix sum on a 33554432 elements: 1.75011 (s)
+Pass
+Time to do 2(N-1) //prefix sum on a 33554432 elements: 0.314862 (s)
+Pass
+--- RUN 15 ---
+Time to do O(N-1) prefix sum on a 33554432 elements: 0.0743798 (s)
+Time to do O(NlogN) //prefix sum on a 33554432 elements: 1.74986 (s)
+Pass
+Time to do 2(N-1) //prefix sum on a 33554432 elements: 0.315187 (s)
+Pass
+--- RUN 16 ---
+Time to do O(N-1) prefix sum on a 33554432 elements: 0.074534 (s)
+Time to do O(NlogN) //prefix sum on a 33554432 elements: 1.75026 (s)
+Pass
+Time to do 2(N-1) //prefix sum on a 33554432 elements: 0.314509 (s)
+Pass
+--- RUN 17 ---
+Time to do O(N-1) prefix sum on a 33554432 elements: 0.0744927 (s)
+Time to do O(NlogN) //prefix sum on a 33554432 elements: 1.75223 (s)
+Pass
+Time to do 2(N-1) //prefix sum on a 33554432 elements: 0.314637 (s)
+Pass
+--- RUN 18 ---
+Time to do O(N-1) prefix sum on a 33554432 elements: 0.0743968 (s)
+Time to do O(NlogN) //prefix sum on a 33554432 elements: 1.75403 (s)
+Pass
+Time to do 2(N-1) //prefix sum on a 33554432 elements: 0.314118 (s)
+Pass
+--- RUN 19 ---
+Time to do O(N-1) prefix sum on a 33554432 elements: 0.0744417 (s)
+Time to do O(NlogN) //prefix sum on a 33554432 elements: 1.75348 (s)
+Pass
+Time to do 2(N-1) //prefix sum on a 33554432 elements: 0.313956 (s)
+Pass
+--- RUN 20 ---
+Time to do O(N-1) prefix sum on a 33554432 elements: 0.0747278 (s)
+Time to do O(NlogN) //prefix sum on a 33554432 elements: 1.75178 (s)
+Pass
+Time to do 2(N-1) //prefix sum on a 33554432 elements: 0.314306 (s)
+Pass
