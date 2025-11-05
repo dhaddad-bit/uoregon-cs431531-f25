@@ -1,12 +1,12 @@
-CC =  gcc
+CC =  /usr/bin/gcc
 CFLAGS  = -Wall -g -std=c99
-CFLAGS += -O0 -fopenmp -lm
+CFLAGS += -O3 -fopenmp -lm
 CFLAGS += -D_POSIX_C_SOURCE=200112L
 LIBS =
 
 SRC  = $(notdir $(wildcard *.c)) 
 OBJS = $(addsuffix .o, $(basename $(SRC)))
-EXEC = pi
+EXEC = prefix 
 
 all: ${EXEC}
 
@@ -18,3 +18,4 @@ ${EXEC}: ${OBJS}
 
 clean:
 	rm -f *.o *.d *~ *.a *.so *.s ${EXEC}
+
