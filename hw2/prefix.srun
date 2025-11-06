@@ -10,9 +10,10 @@
 #SBATCH --ntasks-per-node=1             ### number of MPI tasks per node
 #SBATCH --cpus-per-task=128              ### number of CPUs for each task
 
-export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
-export OMP_PLACES="cores"
-export OMP_PROC_BIND='spread'
-export OMP_DISPLAY_ENV='true'
 
+export OMP_NUM_THREADS=16
+export OMP_PLACES="cores"
+export OMP_PROC_BIND='close'
+export OMP_DISPLAY_ENV='true'
+export OMP_DISPLAY_AFFINITY='true'
 ./prefix 33554432 5
