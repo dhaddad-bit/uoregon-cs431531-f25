@@ -347,6 +347,7 @@ void convert_coo_to_csr(int* row_ind, int* col_ind, double* val,
                         int m, int n, int nnz,
                         unsigned int** csr_row_ptr, unsigned int** csr_col_ind,
                         double** csr_vals)
+{
     // Allocate memory for csr_row_ptr, csr_col_ind, csr_vals (CSR format)
     *csr_row_ptr = (unsigned int*) malloc(sizeof(unsigned int) * (m + 1));
     assert(*csr_row_ptr);
@@ -387,19 +388,14 @@ void convert_coo_to_csr(int* row_ind, int* col_ind, double* val,
         int row = row_ind[i]-1;
         int col = col_ind[i]-1;
 
-        unsigned int dest = (unsigned int) (
-            #pragma omp atomic capture
-            {
-            row_counts[row]++
-            dest = row_counts[row]-1;
-            }
-        );
-
+        unsigned int dest;
+        #pragma omp atomic capture
+        dest = row_counts[row]++;
         (*csr_col_ind)[dest] = col;
         (*csr_vals)[dest] = val[i];
     }
     free(row_counts);
-{
+
 }
 
 /* Reads in a vector from file.
@@ -520,7 +516,7 @@ void spmv_ser(unsigned int* csr_row_ptr, unsigned int* csr_col_ind,
     for (int i = 0; i < m; i++) {
         double sum = 0.0;
         for (int j = csr_row_ptr[i]; j<csr_row_ptr[i+1]; j++) {
-            sum += csr_ vals[j] * vector_x[csr_col_ind[j]];
+            sum += csr_vals[j] * vector_x[csr_col_ind[j]];
         }
         res[i] = sum;
     }
