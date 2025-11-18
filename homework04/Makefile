@@ -32,4 +32,3 @@ ${EXEC}: ${OBJS}
 
 clean:
 	rm -f *.o *.d *~ *.a *.so *.s ${EXEC}
-

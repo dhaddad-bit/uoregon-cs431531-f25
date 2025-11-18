@@ -2,9 +2,19 @@
 #include <stdio.h>
 #include <assert.h>
 
-#include <helper_cuda.h>
-#include <cooperative_groups.h>
+// --- COMPILER CAN"T FIND <helper_cuda.h> which I was using for check_cuda()
+inline void check_cuda(cudaError_t result, char const *const func, const char *const file, int const line)
+{
+    if(result)
+    {
+        fprintf(stderr, "CUDA error at %s:%d code=%d(%s) \"%s\" \n", file, line, (unsigned int)result, cudaGetErrorString(result), func);
+        exit(EXIT_FAILURE);
+    }
+}
+#define checkCudaErrors(val) check_cuda( (val), #val, __FILE__, __LINE__ )
+// --- END REDEFINITION of check_cuda()
 
+#include <cooperative_groups.h>
 #include "spmv.h"
 
 template <class T>
@@ -12,8 +22,42 @@ __global__ void
 spmv_kernel_ell(unsigned int* col_ind, T* vals, int m, int n, int nnz, 
                 double* x, double* b)
 {
-
     // COMPLETE THIS FUNCTION
+    // use one BLOCK per row
+    // n = max_nonzero_per_row (padded)
+    // nnz = original number of non_zeros (not padded value)
+    extern __shared__ double data[];
+    unsigned int row = blockIdx.x; // new: BLOCK = ROW we are processing
+    unsigned int tid = threadIdx.x; // Thread ID inside the block (0 to 63)! Remember this indexing!
+
+    double partial_sum = 0.0;
+    
+    // --- calculate row indexes in ELL format --- 
+    unsigned int row_start = row * n;
+    unsigned int row_end = row_start+n; // Constant in ell as apposed to csr
+    // Perfectly coallesed access within the block (ideally)
+    for (unsigned int j = row_start+tid; j < row_end; j+= blockDim.x) { // note: j increments by blockDim.x
+        // be careful to not go out of bounds of original nnz
+        unsigned int col = col_ind[j];
+        if (j < nnz) {
+            if (col != (unsigned int)-1) {
+                partial_sum += vals[j] * x[col];
+            }
+        }
+    }
+
+    // --- store the partial sums in shared memory (data) --- 
+    data[tid] = partial_sum;
+    __syncthreads();
+
+    // Parallel reduction in shared memory
+    if (tid == 0) {
+        double sum = 0.0;
+        for (unsigned int i = 0; i < blockDim.x; i++) {
+            sum += data[i];
+        }
+        b[row] = sum;
+    }
 }
 
 
@@ -58,6 +102,15 @@ void allocate_ell_gpu(unsigned int* col_ind, double* vals, int m, int n,
 {
     // copy ELL data to GPU and allocate memory for output
     // COMPLETE THIS FUNCTION
+    // n = "n_new" (max_nnz_per_row) from CPU main.cc function
+    // nnz = nnz remains the same
+    // but! padded value for allocation of memory on GPU ...
+    int padded_nnz = m*n;
+
+    // Use 'CopyData' as described to allocate memory for ELL arrays on device (GPU)
+    CopyData(col_ind, padded_nnz, sizeof(unsigned int), dev_col_ind);
+    CopyData(vals, padded_nnz, sizeof(double), dev_vals);
+
 }
 
 void allocate_csr_gpu(unsigned int* row_ptr, unsigned int* col_ind, 
@@ -67,6 +120,16 @@ void allocate_csr_gpu(unsigned int* row_ptr, unsigned int* col_ind,
 {
     // copy CSR data to GPU and allocate memory for output
     // COMPLETE THIS FUNCTION
+    // Allocate memory for CCR arrays on device (GPU) using 'CopyData'
+    CopyData(row_ptr, m+1, sizeof(unsigned int), dev_row_ptr);
+    CopyData(col_ind, nnz, sizeof(unsigned int), dev_col_ind);
+    CopyData(vals, nnz, sizeof(double), dev_vals);
+
+    // Allocate device (GPU) memory for vectors using 'CopyData'
+    CopyData(x, n, sizeof(double), dev_x);
+    
+    // allocate (not copy) b on device (GPU)
+    checkCudaErrors(cudaMalloc((void**) dev_b, sizeof(double) * m));
 }
 
 void get_result_gpu(double* dev_b, double* b, int m)
@@ -134,6 +197,33 @@ spmv_kernel(unsigned int* row_ptr, unsigned int* col_ind, T* vals,
             int m, int n, int nnz, double* x, double* b)
 {
     // COMPLETE THIS FUNCTION
+    extern __shared__ double data[];
+    unsigned int row = blockIdx.x;  // new: BLOCK = ROW we are processing
+    unsigned int tid = threadIdx.x; // Thread ID inside the block (0 to 63)! Remember this indexing!
+
+    // --- partial sum for this thread --- 
+    double partial_sum = 0.0;
+    unsigned int row_start = row_ptr[row];
+    unsigned int row_end = row_ptr[row + 1];
+    unsigned int row_length = row_end - row_start;
+    // blocks traverse/coellese data in the row differently 
+    for (unsigned int j = row_start + tid; j<row_end; j+= blockDim.x) {
+        partial_sum += vals[j] * x[col_ind[j]];
+    }
+
+    // --- store partial sum in shared memory --- 
+    data[tid] = partial_sum;
+    __syncthreads();
+
+    // parallel reduction in shared memory
+    // (just starting with sequential reduction)
+    if (tid == 0) {
+        double sum = 0.0;
+        for (unsigned int i = 0; i < blockDim.x; i++) {
+            sum += data[i];
+        }
+        b[row] = sum;
+    }
 }
 
 

@@ -10,8 +10,8 @@
 #SBATCH --gres=gpu:1          ### General REServation of gpu:number of gpus
 #SBATCH --cpus-per-task=28     ### Number of threads per task (OMP threads)
 
-module load cuda/10.2
-module load gcc/7.3
+module load cuda/12.4.1
+#module load gcc/7.3
 
 export OMP_PROC_BIND=true
 export OMP_NUM_THREADS=28
