@@ -115,10 +115,21 @@ int main(int argc, char** argv)
                      &dci, &dv, &dx, &db);
     timer[GPU_ALLOC_TIME] += ElapsedTime(ReadTSC() - t0);
 
-    t0 = ReadTSC();
-    // spmv_gpu_2(drp, dci, dv, m, n, nnz, dx, db);
-    spmv_gpu(drp, dci, dv, m, n, nnz, dx, db);
-    timer[GPU_SPMV_TIME] += ElapsedTime(ReadTSC() - t0);
+    // Test different thread counts
+    int thread_counts[] = {32, 64, 128, 256};
+    int num_tests = 4;
+
+    for (int i = 0; i < num_tests; i++) {
+        int threads = thread_counts[i];
+        fprintf(stdout, "  Running CSR with %d threads...\n", threads);
+        t0 = ReadTSC();
+        spmv_gpu(drp, dci, dv, m, n, nnz, dx, db, threads);
+
+        // Only store the time for the 64-thread run in your timer array
+        if (threads == 64) {
+            timer[GPU_SPMV_TIME] += ElapsedTime(ReadTSC() - t0);
+        }
+    };
 
     // copy data back from the GPU
     double* b = (double*) malloc(sizeof(double) * m);;
@@ -132,22 +143,28 @@ int main(int argc, char** argv)
     fprintf(stdout, "Executing GPU ELL SpMV ... \n");
     unsigned int* dec; // row pointer on GPU
     double* dev; // col index on GPU
-    double* dex; // input x on GPU
-    double* deb; // result b on GPU
     t0 = ReadTSC();
-    allocate_ell_gpu(ell_col_ind, ell_vals, m, n_new, nnz, x, &dec, &dev, &dex,
-                     &deb);
+    allocate_ell_gpu(ell_col_ind, ell_vals, m, n_new, nnz, x, &dec, &dev, &dx,
+                     &db);
     timer[GPU_ALLOC_TIME] += ElapsedTime(ReadTSC() - t0);
 
-    t0 = ReadTSC();
-    spmv_gpu_ell(dec, dev, m, n_new, nnz, dex, deb);
-    timer[GPU_ELL_TIME] += ElapsedTime(ReadTSC() - t0);
+    for (int i = 0; i < num_tests; i++) {
+        int threads = thread_counts[i];
+        fprintf(stdout, "  Running ELL with %d threads...\n", threads);
+        t0 = ReadTSC();
+        spmv_gpu_ell(dec, dev, m, n_new, nnz, dx, db, threads);
+
+        // Only store the time for the 64-thread run in your timer array
+        if (threads == 64) {
+            timer[GPU_ELL_TIME] += ElapsedTime(ReadTSC() - t0);
+        }
+    }
 
     // copy data back from the GPU
     double* be = (double*) malloc(sizeof(double) * m);;
     assert(be);
     t0 = ReadTSC();
-    get_result_gpu(deb, be, m);
+    get_result_gpu(db, be, m);
     timer[GPU_ALLOC_TIME] += ElapsedTime(ReadTSC() - t0);
 
 

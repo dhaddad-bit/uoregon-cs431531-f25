@@ -472,16 +472,19 @@ void spmv(unsigned int* csr_row_ptr, unsigned int* csr_col_ind,
           double* csr_vals, int m, int n, int nnz, 
           double* vector_x, double *res)
 {
-    // "embarassingly parallel" problem for each row (individual dot product)
-    #pragma omp parallel for
-    for(int i=0; i<m; i++) {
-        res[i] = 0.0; // initialize result vector
-        double sum = 0.0;
-        for (int j=csr_row_ptr[i]; j<csr_row_ptr[i+1]; j++) {
-            int col = csr_col_ind[j];
-            sum += csr_vals[j] * vector_x[col];
+    // first initialize res to 0
+    #pragma omp parallel for schedule(static)
+    for(int i = 0; i < m; i++) {
+        res[i] = 0.0;
+    }
+    // calculate spmv
+    #pragma omp parallel for schedule(static)
+    for (unsigned int i=0; i<m; i++) {
+        unsigned int row_begin = csr_row_ptr[i];
+        unsigned int row_end = csr_row_ptr[i + 1];
+        for (unsigned int j=row_begin; j<row_end; j++) {
+            res[i] += csr_vals[j] * vector_x[csr_col_ind[j]];
         }
-        res[i] = sum;
     }
 }
 

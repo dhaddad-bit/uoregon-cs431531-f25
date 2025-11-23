@@ -39,10 +39,8 @@ spmv_kernel_ell(unsigned int* col_ind, T* vals, int m, int n, int nnz,
     for (unsigned int j = row_start+tid; j < row_end; j+= blockDim.x) { // note: j increments by blockDim.x
         // be careful to not go out of bounds of original nnz
         unsigned int col = col_ind[j];
-        if (j < nnz) {
-            if (col != (unsigned int)-1) {
-                partial_sum += vals[j] * x[col];
-            }
+        if (col != (unsigned int)-1) {
+            partial_sum += vals[j] * x[col];
         }
     }
 
@@ -51,19 +49,21 @@ spmv_kernel_ell(unsigned int* col_ind, T* vals, int m, int n, int nnz,
     __syncthreads();
 
     // Parallel reduction in shared memory
-    if (tid == 0) {
-        double sum = 0.0;
-        for (unsigned int i = 0; i < blockDim.x; i++) {
-            sum += data[i];
+    for (unsigned int s = blockDim.x / 2; s>0; s>>=1) {
+        if (tid < s) {
+            data[tid] += data[tid +s];
         }
-        b[row] = sum;
+        __syncthreads();
+    }
+    if (tid == 0) {
+        b[row] = data[0];
     }
 }
 
 
 
 void spmv_gpu_ell(unsigned int* col_ind, double* vals, int m, int n, int nnz, 
-                  double* x, double* b)
+                  double* x, double* b, unsigned int threads)
 {
     // timers
     cudaEvent_t start;
@@ -74,7 +74,7 @@ void spmv_gpu_ell(unsigned int* col_ind, double* vals, int m, int n, int nnz,
 
     // GPU execution parameters
     unsigned int blocks = m; 
-    unsigned int threads = 64; 
+    // unsigned int threads = 64; 
     unsigned int shared = threads * sizeof(double);
 
     dim3 dimGrid(blocks, 1, 1);
@@ -205,7 +205,6 @@ spmv_kernel(unsigned int* row_ptr, unsigned int* col_ind, T* vals,
     double partial_sum = 0.0;
     unsigned int row_start = row_ptr[row];
     unsigned int row_end = row_ptr[row + 1];
-    unsigned int row_length = row_end - row_start;
     // blocks traverse/coellese data in the row differently 
     for (unsigned int j = row_start + tid; j<row_end; j+= blockDim.x) {
         partial_sum += vals[j] * x[col_ind[j]];
@@ -217,18 +216,20 @@ spmv_kernel(unsigned int* row_ptr, unsigned int* col_ind, T* vals,
 
     // parallel reduction in shared memory
     // (just starting with sequential reduction)
-    if (tid == 0) {
-        double sum = 0.0;
-        for (unsigned int i = 0; i < blockDim.x; i++) {
-            sum += data[i];
+    for (unsigned int s = blockDim.x / 2; s>0; s>>=1) {
+        if (tid < s) {
+            data[tid] += data[tid +s];
         }
-        b[row] = sum;
+        __syncthreads();
+    }
+    if (tid == 0) {
+        b[row] = data[0];
     }
 }
 
 
 void spmv_gpu(unsigned int* row_ptr, unsigned int* col_ind, double* vals,
-              int m, int n, int nnz, double* x, double* b)
+              int m, int n, int nnz, double* x, double* b, unsigned int threads)
 {
     // timers
     cudaEvent_t start;
@@ -241,7 +242,7 @@ void spmv_gpu(unsigned int* row_ptr, unsigned int* col_ind, double* vals,
     // 1 thread block per row
     // 64 threads working on the non-zeros on the same row
     unsigned int blocks = m; 
-    unsigned int threads = 64; 
+    // unsigned int threads = 64; 
     unsigned int shared = threads * sizeof(double);
 
     dim3 dimGrid(blocks, 1, 1);
