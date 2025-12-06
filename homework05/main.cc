@@ -603,9 +603,23 @@ void spmv_coo_naive(int world_rank, int world_size, int* row_ind, int* col_ind, 
     double* res_coo = (double*) malloc(sizeof(double) * m);;
     assert(res_coo);
 
+    // part (7) error with last rank if nnz not multiple 
+    // Last rank may have less work to do if nnz is not multiple of world_size
+    // (to avoid processing zero-padded data)
+    long long start_index = (long long)world_rank * nnz_per_rank; // oops long long is int I was trying to use double.
+    long long end_index = start_index + nnz_per_rank;
+    if (end_index > nnz) {
+        end_index = nnz; // only the last rank can have this problem
+    }
+    int local_nnz = end_index - start_index;
+    if (local_nnz < 0) {
+        local_nnz = 0; // in case there are more ranks than nnz
+    }
+
     fprintf(stdout, "Calculating COO SpMV ... ");
     // Calculate SPMV using COO
-    spmv_coo(row_ind, col_ind, val, m, n, nnz_per_rank, vector_x, res_coo, 
+    // part (7) only process local_nnz non-zero elements
+    spmv_coo(row_ind, col_ind, val, m, n, local_nnz, vector_x, res_coo, 
              writelock);
     fprintf(stdout, "done\n");
     end = MPI_Wtime();
@@ -619,9 +633,8 @@ void spmv_coo_naive(int world_rank, int world_size, int* row_ind, int* col_ind, 
 	// STEP 5 - Calculate the final result from local results
     // Each rank has partial result - reduce to get the final result to rank 0
 	// TODO 
-    MPI_Reduce(res_coo, res_coo_final, m, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
-    // stop timer and record it in the timer array
     double* res_coo_final = NULL;
+    // stop timer and record it in the timer array
     if(world_rank == 0) {
         res_coo_final = (double*) malloc(sizeof(double) * m);
         assert(res_coo_final);
@@ -630,6 +643,7 @@ void spmv_coo_naive(int world_rank, int world_size, int* row_ind, int* col_ind, 
     start = MPI_Wtime();
 	// Get the result from everyone and calculate the final result
 	// TODO
+    MPI_Reduce(res_coo, res_coo_final, m, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
     end = MPI_Wtime();
     timer[RES_REDUCE_TIME] = end - start;
 	// --------------------------------------------------------------------

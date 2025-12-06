@@ -4,7 +4,7 @@
 #SBATCH --job-name=mpi_test	     ### job name
 #SBATCH --output=mpi_test_%A.out ### file in which to store job stdout
 #SBATCH --error=mpi_test_%A.err  ### file in which to store job stderr
-#SBATCH --time=2                 ### wall-clock time limit, in minutes
+#SBATCH --time=5                 ### wall-clock time limit, in minutes
 #SBATCH --mem=100000M            ### memory limit per node, in MB
 #SBATCH --nodes=1                ### number of nodes to use
 #SBATCH --ntasks-per-node=8      ### number of tasks to launch per node
